@@ -16,6 +16,7 @@ import com.shockstudio.rento.R;
 import com.shockstudio.rento.appconfig.AppConstants;
 import com.shockstudio.rento.network.HttpParse;
 import com.shockstudio.rento.ui.dashboard.DashboardActivity;
+import com.shockstudio.rento.ui.registration.RegistrationActivity;
 
 import java.util.HashMap;
 
@@ -27,7 +28,7 @@ public class LoginActivity extends AppCompatActivity
 {
 
     EditText Email, passwordET, phoneET;
-    Button loginBT ;
+    Button loginBT, registerBT;
     String passwordStr, EmailHolder, phoneStr;
     String finalResult ;
     ProgressDialog progressDialog;
@@ -46,6 +47,7 @@ public class LoginActivity extends AppCompatActivity
         phoneET = (EditText)findViewById(R.id.phone);
         passwordET = (EditText)findViewById(R.id.password);
         loginBT = (Button)findViewById(R.id.login);
+        registerBT = (Button)findViewById(R.id.register);
 
         loginBT.setOnClickListener(new View.OnClickListener()
         {
@@ -64,6 +66,19 @@ public class LoginActivity extends AppCompatActivity
                 }
             }
         });
+
+
+        registerBT.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
+//                intent.putExtra(userPhone,phone);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private boolean isPhoneValid(String phone)

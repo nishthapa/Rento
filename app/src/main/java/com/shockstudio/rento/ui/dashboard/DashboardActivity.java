@@ -42,7 +42,7 @@ public class DashboardActivity extends AppCompatActivity
                 finish();
                 Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
                 startActivity(intent);
-                Toast.makeText(DashboardActivity.this, "Log Out Successfully", Toast.LENGTH_LONG).show();
+                Toast.makeText(DashboardActivity.this, "Logged out!", Toast.LENGTH_LONG).show();
             }
         });
     }

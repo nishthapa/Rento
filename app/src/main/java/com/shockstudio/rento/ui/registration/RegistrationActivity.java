@@ -26,11 +26,11 @@ import java.util.HashMap;
 public class RegistrationActivity extends AppCompatActivity
 {
 
-    Button register, log_in;
-    EditText First_Name, Last_Name, Email, Password ;
-    String F_Name_Holder, L_Name_Holder, EmailHolder, PasswordHolder;
-    String finalResult ;
-//    String HttpURL = "https://androidjsonblog.000webhostapp.com/User/UserRegistration.php";
+    Button registerBT, loginBT;
+    EditText fnameET, lnameET, emailET, passwordET, phoneET;
+    String fnameStr, lnameStr, phoneStr, emailStr, passwordStr;
+//    String F_Name_Holder, L_Name_Holder, EmailHolder, PasswordHolder;
+    String reason = "", finalResult ;
     Boolean CheckEditText ;
     ProgressDialog progressDialog;
     HashMap<String,String> hashMap = new HashMap<>();
@@ -38,81 +38,136 @@ public class RegistrationActivity extends AppCompatActivity
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
         //Assign Id'S
-        First_Name = (EditText)findViewById(R.id.editTextF_Name);
-        Last_Name = (EditText)findViewById(R.id.editTextL_Name);
-        Email = (EditText)findViewById(R.id.editTextEmail);
-        Password = (EditText)findViewById(R.id.editTextPassword);
+        fnameET = (EditText)findViewById(R.id.first_name);
+        lnameET = (EditText)findViewById(R.id.last_name);
+        phoneET = (EditText)findViewById(R.id.phone);
+        emailET = (EditText)findViewById(R.id.email);
+        passwordET = (EditText)findViewById(R.id.password);
 
-        register = (Button)findViewById(R.id.Submit);
-        log_in = (Button)findViewById(R.id.Login);
+        registerBT = (Button)findViewById(R.id.register);
+        loginBT = (Button)findViewById(R.id.login);
 
         //Adding Click Listener on button.
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // Checking whether EditText is Empty or Not
-                CheckEditTextIsEmptyOrNot();
-
-                if(CheckEditText){
-
-                    // If EditText is not empty and CheckEditText = True then this block will execute.
-
-                    UserRegisterFunction(F_Name_Holder,L_Name_Holder, EmailHolder, PasswordHolder);
-
-                }
-                else {
-
-                    // If EditText is empty then this block will execute .
-                    Toast.makeText(RegistrationActivity.this, "Please fill all form fields.", Toast.LENGTH_LONG).show();
-
-                }
-
-
-            }
-        });
-
-        log_in.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
-                startActivity(intent);
-
-            }
-        });
-
-    }
-
-    public void CheckEditTextIsEmptyOrNot(){
-
-        F_Name_Holder = First_Name.getText().toString();
-        L_Name_Holder = Last_Name.getText().toString();
-        EmailHolder = Email.getText().toString();
-        PasswordHolder = Password.getText().toString();
-
-
-        if(TextUtils.isEmpty(F_Name_Holder) || TextUtils.isEmpty(L_Name_Holder) || TextUtils.isEmpty(EmailHolder) || TextUtils.isEmpty(PasswordHolder))
+        registerBT.setOnClickListener(new View.OnClickListener()
         {
+            @Override
+            public void onClick(View view)
+            {
+                fnameStr = fnameET.getText().toString();
+                lnameStr = lnameET.getText().toString();
+                emailStr = emailET.getText().toString();
+                phoneStr = phoneET.getText().toString();
+                passwordStr = passwordET.getText().toString();
+                if(isFirstNameValid(fnameStr) && isPhoneValid(phoneStr) && isPasswordValid(passwordStr))
+                {
 
-            CheckEditText = false;
+                    register(fnameStr, lnameStr, phoneStr, emailStr, passwordStr);
+                }
+                else
+                {
+                    Toast.makeText(RegistrationActivity.this, reason, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
-        }
-        else {
-
-            CheckEditText = true ;
-        }
+        loginBT.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
 
     }
 
-    public void UserRegisterFunction(final String F_Name, final String L_Name, final String email, final String password){
 
-        class UserRegisterFunctionClass extends AsyncTask<String,Void,String> {
+    private boolean isPhoneValid(String phone)
+    {
+        if(phone == null)
+        {
+            reason = reason + "\nPhone Number cannot be empty";
+            return false;
+        }
+        if (!phone.equals(""))
+        {
+            if(phone.length() == 10)
+            {
+                return Patterns.PHONE.matcher(phone).matches();
+            }
+            else if(phone.length() == 13)
+            {
+                if(phone.charAt(0) == '+')
+                {
+                    if(Patterns.PHONE.matcher(phone).matches())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        reason = reason + "\nInvalid Phone Number";
+                        return false;
+                    }
+                }
+                else
+                {
+                    reason = reason + "\nInvalid Phone Number";
+                    return false;
+                }
+            }
+            else
+            {
+                reason = reason + "\nInvalid Phone Number";
+                return  false;
+            }
+        }
+        else
+        {
+            reason = reason + "\nPhone Number cannot be empty";
+            return !phone.trim().isEmpty();
+        }
+    }
+
+    // A placeholder password validation check
+    private boolean isPasswordValid(String password)
+    {
+        if(password != null && password.trim().length() > 5)
+        {
+            return true;
+        }
+        else
+        {
+            reason = reason + "\nInvalid Password";
+            return false;
+        }
+    }
+
+    private boolean isFirstNameValid(String firstName)
+    {
+        if(firstName.length() == 0 || firstName == null)
+        {
+            reason = reason + "\nFirst Name cannot be empty";
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+
+    public void register(final String first_Name, final String last_Name, final String phone, final String email, final String password)
+    {
+        class UserRegisterFunctionClass extends AsyncTask<String,Void,String>
+        {
 
             @Override
             protected void onPreExecute() {
@@ -135,73 +190,16 @@ public class RegistrationActivity extends AppCompatActivity
             @Override
             protected String doInBackground(String... params)
             {
-
-                hashMap.put("f_name",params[0]);
-
-                hashMap.put("L_name",params[1]);
-
-                hashMap.put("email",params[2]);
-
-                hashMap.put("password",params[3]);
-
+                hashMap.put("first_name",params[0]);
+                hashMap.put("last_name",params[1]);
+                hashMap.put("phone",params[2]);
+                hashMap.put("email",params[3]);
+                hashMap.put("password",params[4]);
                 finalResult = httpParse.postRequest(hashMap, AppConstants.SERVER_REGISTRATION_URL);
-
                 return finalResult;
             }
         }
-
         UserRegisterFunctionClass userRegisterFunctionClass = new UserRegisterFunctionClass();
-
-        userRegisterFunctionClass.execute(F_Name,L_Name,email,password);
+        userRegisterFunctionClass.execute(first_Name, last_Name, phone, email, password);
     }
-
-    //Some new code added, use them later.
-
-    private boolean isPhoneValid(String phone)
-    {
-        if(phone == null)
-        {
-            return false;
-        }
-        if (!phone.equals(""))
-        {
-            if(phone.length() == 10)
-            {
-                return Patterns.PHONE.matcher(phone).matches();
-            }
-            else if(phone.length() == 13)
-            {
-                if(phone.charAt(0) == '+')
-                {
-                    if(Patterns.PHONE.matcher(phone).matches())
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return  false;
-            }
-        }
-        else
-        {
-            return !phone.trim().isEmpty();
-        }
-    }
-
-    // A placeholder password validation check
-    private boolean isPasswordValid(String password)
-    {
-        return password != null && password.trim().length() > 5;
-    }
-
 }
